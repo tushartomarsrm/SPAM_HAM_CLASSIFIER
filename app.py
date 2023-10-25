@@ -1,20 +1,10 @@
-import streamlit as st
-# import pickle
 import string
-# import scipy
-# from scipy import *
-# from scipy.sparse import csr_matrix
-# from scipy.sparse import *
-# import sklearn
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
-# import numpy
-from sklearn.feature_extraction.text import TfidfVectorizer
+from joblib import load
 
 ps = PorterStemmer()
-# nltk.download('punkt')
-# nltk.download('stopwords')
 
 def transform_text(text):
     text = text.lower()
@@ -40,26 +30,31 @@ def transform_text(text):
 
     return " ".join(y)
 
-from joblib import load
-
 # Load the models
 tfidf = load('vectorizer.joblib')
 model = load('model.joblib')
 
-st.title("Email/SMS Spam Classifier")
+import flask
 
-input_sms = st.text_area("Enter the message")
+app = flask.Flask(__name__)
 
-if st.button('Predict'):
+@app.route('/')
+def index():
+    return flask.render_template('index.html')
 
-    # 1. preprocess
+@app.route('/predict', methods=['POST'])
+def predict():
+    input_sms = flask.request.form['input_text']
     transformed_sms = transform_text(input_sms)
-    # 2. vectorize
     vector_input = tfidf.transform([transformed_sms])
-    # 3. predict
     result = model.predict(vector_input)[0]
-    # 4. Display
     if result == 1:
-        st.header("Spam")
+        prediction = "Spam"
     else:
-        st.header("Not Spam")
+        prediction = "Not Spam"
+    return flask.jsonify({'result': prediction})
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+

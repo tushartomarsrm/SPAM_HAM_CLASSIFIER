@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email/SMS Spam Classifier</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#predictButton").click(function () {
+                var inputText = $("#inputText").val();
+                $.post("/predict", { "input_text": inputText }, function (data) {
+                    $("#result").text(data.result);
+                });
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <h1>Email/SMS Spam Classifier</h1>
+    <textarea id="inputText" rows="4" cols="50"></textarea><br>
+    <button id="predictButton">Predict</button>
+    <h2>Result:</h2>
+    <div id="result"></div>
+</body>
+
+</html>
